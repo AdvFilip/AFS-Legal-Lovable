@@ -124,26 +124,21 @@ function TeamPage() {
   useEffect(() => {
     const fetchAdvocates = async () => {
       try {
-        // Query Supabase REST API directly for published advocates
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        // Supabase credentials (from environment or hardcoded)
+        const supabaseUrl = 'https://wwdaefgmeiiwuhiuckus.supabase.co';
+        const supabaseKey = 'sb_publishable_UVHTDGH_Ei-IIsTmg8MfDg_EgDUszm5';
 
-        if (!supabaseUrl || !supabaseKey) {
-          console.warn("Supabase credentials not configured");
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
+        // Build query parameters
+        const params = new URLSearchParams();
+        params.append('status', 'eq.published');
+        params.append('order', 'seniority_rank.asc,joined_on.asc,full_name.asc');
 
-        // Build URL with proper query string
-        const queryString = new URLSearchParams({
-          status: 'eq.published',
-          order: 'seniority_rank.asc,joined_on.asc,full_name.asc',
-        }).toString();
+        const url = `${supabaseUrl}/rest/v1/advocates?${params.toString()}`;
 
-        const url = `${supabaseUrl}/rest/v1/advocates?${queryString}`;
+        console.log('Fetching advocates from:', url);
 
         const response = await fetch(url, {
+          method: 'GET',
           headers: {
             apikey: supabaseKey,
             Authorization: `Bearer ${supabaseKey}`,
@@ -151,14 +146,18 @@ function TeamPage() {
           },
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
-          console.error('Supabase response:', response.status, response.statusText);
+          const errorText = await response.text();
+          console.error('Supabase error:', response.status, errorText);
           setAdvocates([]);
           setLoading(false);
           return;
         }
 
         const data: Advocate[] = await response.json();
+        console.log('Advocates loaded:', data);
         setAdvocates(sortAdvocates(data));
       } catch (err) {
         console.error("Team page fetch error:", err);
