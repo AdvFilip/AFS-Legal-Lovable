@@ -2,8 +2,62 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Layout, Section, Eyebrow, SectionHeading, GoldButton } from "@/components/afs";
 import { Reveal } from "@/components/afs/primitives";
-import type { Advocate } from "@/lib/advocates";
-import { sortAdvocates } from "@/lib/advocates";
+import { supabase } from "@/integrations/supabase/client";
+
+type Advocate = {
+  id: string;
+  full_name: string | null;
+  slug: string | null;
+  designation: string | null;
+  location: string | null;
+  enrollment_no: string | null;
+  languages: string[] | null;
+  primary_practice: string | null;
+  secondary_practices: string[] | null;
+  industries: string[] | null;
+  years_practice: number | null;
+  highlights: string[] | null;
+  email: string | null;
+  linkedin_url: string | null;
+  photo_url: string | null;
+  seniority_rank: number | null;
+  joined_on: string | null;
+  status: string | null;
+};
+
+function initialsFrom(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((n) => n[0]!)
+      .join("")
+      .slice(0, 3)
+      .toUpperCase() || "—"
+  );
+}
+
+function getSeniorityLabel(rank: number | null): string {
+  const labels: Record<number, string> = {
+    1: "Partners",
+    2: "Senior Associates",
+    3: "Associates",
+    4: "Of Counsel",
+  };
+  return (rank !== null && labels[rank]) || "Team";
+}
+
+function groupBySeniority(advocates: Advocate[]): Map<number, Advocate[]> {
+  const groups = new Map<number, Advocate[]>();
+  for (const a of advocates) {
+    const rank = a.seniority_rank ?? 999;
+    if (!groups.has(rank)) {
+      groups.set(rank, []);
+    }
+    groups.get(rank)!.push(a);
+  }
+  return new Map([...groups.entries()].sort((a, b) => a[0] - b[0]));
+}
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -26,32 +80,16 @@ export const Route = createFileRoute("/team")({
   component: TeamPage,
 });
 
-function getSeniorityLabel(rank: number): string {
-  const labels: Record<number, string> = {
-    1: "Partners",
-    2: "Senior Associates",
-    3: "Associates",
-    4: "Of Counsel",
-  };
-  return labels[rank] || "Team";
-}
-
-function groupBySeniority(advocates: Advocate[]): Map<number, Advocate[]> {
-  const groups = new Map<number, Advocate[]>();
-  for (const a of advocates) {
-    if (!groups.has(a.seniority_rank)) {
-      groups.set(a.seniority_rank, []);
-    }
-    groups.get(a.seniority_rank)!.push(a);
-  }
-  return new Map([...groups.entries()].sort((a, b) => a[0] - b[0]));
-}
-
 function ListAdvocateCard({ a, index }: { a: Advocate; index: number }) {
-  const languages = a.languages ?? [];
-  const highlights = a.highlights ?? [];
-  const secondaryPractices = a.secondary_practices ?? [];
+  const fullName = a.full_name ?? "Advocate";
+  const designation = a.designation ?? "Associate";
+  const languages = Array.isArray(a.languages) ? a.languages.filter(Boolean) : [];
+  const highlights = Array.isArray(a.highlights) ? a.highlights.filter(Boolean) : [];
+  const secondaryPractices = Array.isArray(a.secondary_practices)
+    ? a.secondary_practices.filter(Boolean)
+    : [];
   const primaryPractice = a.primary_practice ?? "";
+  const years = typeof a.years_practice === "number" ? a.years_practice : 0;
 
   return (
     <Reveal
@@ -62,13 +100,13 @@ function ListAdvocateCard({ a, index }: { a: Advocate; index: number }) {
         {a.photo_url ? (
           <img
             src={a.photo_url}
-            alt={a.full_name}
+            alt={fullName}
             className="aspect-[4/5] object-cover border border-[color:var(--color-hairline-soft)] rounded"
           />
         ) : (
           <div className="aspect-[4/5] bg-[color:var(--color-paper-warm)] border border-[color:var(--color-hairline-soft)] flex items-center justify-center overflow-hidden">
             <span className="font-display text-7xl md:text-8xl text-[color:var(--color-gold-deep)]/80 group-hover:text-[color:var(--color-gold-deep)] transition-colors">
-              {a.full_name.split(" ").map((n) => n[0]).join("")}
+              {initialsFrom(fullName)}
             </span>
             <div className="absolute bottom-4 left-4 right-4 h-px bg-[color:var(--color-gold)]" />
           </div>
@@ -76,16 +114,16 @@ function ListAdvocateCard({ a, index }: { a: Advocate; index: number }) {
       </div>
 
       <div>
-        <div className="eyebrow text-[0.6rem] mb-4">{a.designation}</div>
+        <div className="eyebrow text-[0.6rem] mb-4">{designation}</div>
         <h3 className="serif-heading text-3xl md:text-4xl text-[color:var(--color-text-strong)] mb-2">
-          {a.full_name}
+          {fullName}
         </h3>
         <div className="text-[0.78rem] tracking-wide text-[color:var(--color-gold-deep)] mb-6">
           {[a.enrollment_no, a.location].filter(Boolean).join(" • ")}
         </div>
         <div className="h-px w-12 bg-[color:var(--color-gold)] mb-6" />
         <p className="text-[0.95rem] leading-[1.95] text-[color:var(--color-text-muted)] max-w-2xl mb-6">
-          {a.years_practice ? `${a.years_practice}+ years of experience` : "Advocate"}
+          {years > 0 ? `${years}+ years of experience` : "Advocate"}
           {primaryPractice ? ` in ${primaryPractice.toLowerCase()}.` : "."}
           {languages.length > 0 && ` Speaks ${languages.join(", ")}.`}
         </p>
@@ -132,44 +170,44 @@ function ListAdvocateCard({ a, index }: { a: Advocate; index: number }) {
 }
 
 function GridAdvocateCard({ a, index }: { a: Advocate; index: number }) {
-  const languages = a.languages ?? [];
-  const secondaryPractices = a.secondary_practices ?? [];
+  const fullName = a.full_name ?? "Advocate";
+  const designation = a.designation ?? "Associate";
+  const languages = Array.isArray(a.languages) ? a.languages.filter(Boolean) : [];
+  const secondaryPractices = Array.isArray(a.secondary_practices)
+    ? a.secondary_practices.filter(Boolean)
+    : [];
   const primaryPractice = a.primary_practice ?? "";
+  const years = typeof a.years_practice === "number" ? a.years_practice : 0;
 
   return (
     <Reveal delay={(index % 12) * 0.04} className="group">
       <div className="border border-[color:var(--color-hairline-soft)] bg-[color:var(--color-paper-card)] p-6 h-full flex flex-col hover:border-[color:var(--color-gold-deep)] transition-colors">
-        {/* Photo or Initials */}
         <div className="relative mb-4 h-40 flex items-center justify-center bg-[color:var(--color-paper-warm)] rounded overflow-hidden border border-[color:var(--color-hairline-soft)]">
           {a.photo_url ? (
-            <img src={a.photo_url} alt={a.full_name} className="w-full h-full object-cover" />
+            <img src={a.photo_url} alt={fullName} className="w-full h-full object-cover" />
           ) : (
             <span className="font-display text-5xl text-[color:var(--color-gold-deep)]/60 group-hover:text-[color:var(--color-gold-deep)] transition-colors">
-              {a.full_name.split(" ").map((n) => n[0]).join("")}
+              {initialsFrom(fullName)}
             </span>
           )}
         </div>
 
-        {/* Name & Designation */}
         <h4 className="serif-heading text-lg text-[color:var(--color-text-strong)] mb-1">
-          {a.full_name}
+          {fullName}
         </h4>
         <p className="text-xs text-[color:var(--color-gold-deep)] mb-3 uppercase tracking-wide">
-          {a.designation}
+          {designation}
         </p>
 
-        {/* Location & Enrollment */}
         <p className="text-xs text-[color:var(--color-text-muted)] mb-3">
           {[a.enrollment_no, a.location].filter(Boolean).join(" • ")}
         </p>
 
-        {/* Years & Languages */}
         <p className="text-xs text-[color:var(--color-text-muted)] mb-4 line-clamp-2">
-          {a.years_practice ? `${a.years_practice}+ years` : "Advocate"}
+          {years > 0 ? `${years}+ years` : "Advocate"}
           {languages.length > 0 && ` • ${languages.join(", ")}`}
         </p>
 
-        {/* Practice Areas */}
         <div className="flex flex-wrap gap-1 mb-4">
           {primaryPractice && (
             <span className="text-[0.55rem] tracking-widest uppercase px-2 py-1 bg-[color:var(--color-gold-dim)] text-[color:var(--color-gold-deep)] rounded">
@@ -183,7 +221,6 @@ function GridAdvocateCard({ a, index }: { a: Advocate; index: number }) {
           ))}
         </div>
 
-        {/* Contact */}
         <div className="mt-auto pt-4 border-t border-[color:var(--color-hairline-soft)]">
           {a.email ? (
             <a href={`mailto:${a.email}`} className="text-[0.6rem] tracking-widest uppercase text-[color:var(--color-gold-deep)] hover:text-[color:var(--color-gold-pale)] transition-colors">
@@ -205,57 +242,25 @@ function TeamPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   useEffect(() => {
-    const fetchAdvocates = async () => {
-      try {
-        const supabaseUrl =
-          import.meta.env.VITE_SUPABASE_URL ||
-          import.meta.env.VITE_SUPABASE_PROJECT_URL;
-        const supabaseKey =
-          import.meta.env.VITE_SUPABASE_ANON_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-        if (!supabaseUrl || !supabaseKey) {
-          console.warn("[team] Supabase credentials not found in env");
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
+    (async () => {
+      const { data, error: err } = await supabase
+        .from("advocates")
+        .select("*")
+        .eq("status", "published")
+        .order("seniority_rank", { ascending: true, nullsFirst: false })
+        .order("joined_on", { ascending: true, nullsFirst: false })
+        .order("full_name", { ascending: true });
 
-        const url = `${supabaseUrl}/rest/v1/advocates?status=eq.published`;
-        console.log("[team] fetching:", url);
-
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("[team] status:", response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("[team] supabase error:", response.status, errorText);
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
-
-        const data: Advocate[] = await response.json();
-        console.log("[team] advocates loaded:", data.length, data);
-        setAdvocates(sortAdvocates(data));
-      } catch (err) {
-        console.error("[team] fetch error:", err);
+      if (err) {
+        console.error("[team] supabase error:", err);
+        setError(err.message);
         setAdvocates([]);
-      } finally {
-        setLoading(false);
+      } else {
+        setAdvocates((data ?? []) as Advocate[]);
       }
-    };
-
-    fetchAdvocates();
+      setLoading(false);
+    })();
   }, []);
 
   const advocatesByRank = groupBySeniority(advocates);
