@@ -8,19 +8,36 @@ import type { Advocate } from '@/lib/advocates';
 
 export async function GET() {
   try {
-    // This endpoint is called from the team page
-    // In Lovable, this will query from Supabase directly
-    // Example query:
-    // SELECT * FROM advocates
-    // WHERE status = 'published'
-    // ORDER BY seniority_rank ASC, joined_on ASC, full_name ASC
+    // Query published advocates from Supabase
+    // Using fetch to call Supabase REST API
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-    // For now, return placeholder that client will populate from database
-    const advocates: Advocate[] = [];
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase credentials');
+      return json({ advocates: [] });
+    }
 
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/advocates?status=eq.published&order=seniority_rank.asc,joined_on.asc,full_name.asc`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.error('Supabase query failed:', response.statusText);
+      return json({ advocates: [] });
+    }
+
+    const advocates: Advocate[] = await response.json();
     return json(advocates);
   } catch (error) {
     console.error('Error fetching published advocates:', error);
-    return json({ error: 'Failed to fetch advocates' }, { status: 500 });
+    return json([]);
   }
 }
