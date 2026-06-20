@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import logo from "@/assets/afs-logo.png.asset.json";
 
-const KEY = "afs-disclaimer-accepted";
+const KEY = "afs-disclaimer-accepted-v2";
 
 export function Disclaimer() {
   const [open, setOpen] = useState(false);
