@@ -22,31 +22,32 @@
   --ease-premium: cubic-bezier(0.2, 0, 0.38, 0.9);
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Premium Surfaces — refined charcoal with subtle warmth */
-  --color-ink-deep: #0a0a0a;       /* pure black for contrast */
-  --color-ink: #0f0f0f;             /* deepest black */
-  --color-paper: #1a1a1a;           /* primary surface */
-  --color-paper-warm: #1f1f1f;      /* warm layer */
-  --color-paper-card: #242424;      /* raised card surface */
-  --color-graphite: #333333;
-  --color-surface: #1a1a1a;
-  --color-surface-subtle: #262626;
+  /* KHAITAN & CO INSPIRED: Deep Navy + White Sophistication */
+  /* Primary surfaces */
+  --color-ink-deep: #001f3f;        /* deep navy (primary brand) */
+  --color-ink: #003366;              /* navy blue */
+  --color-paper: #0a1929;            /* dark navy for surfaces */
+  --color-paper-warm: #0f2847;       /* slightly warmer navy */
+  --color-paper-card: #1a3a52;       /* card surface */
+  --color-graphite: #2c4a63;
+  --color-surface: #0a1929;
+  --color-surface-subtle: #0f2847;
 
-  /* Premium Text — bright ivory for maximum readability */
-  --color-text-strong: #f5f5f5;
-  --color-text: #e0e0e0;
-  --color-text-muted: #a8a8a8;
-  --color-text-subtle: #7a7a7a;
-  --color-text-invert: #f5f5f5;
-  --color-text-invert-muted: rgba(245, 245, 245, 0.7);
+  /* Text — pure white for maximum contrast */
+  --color-text-strong: #ffffff;
+  --color-text: #f5f5f5;
+  --color-text-muted: #b0bcc4;
+  --color-text-subtle: #7a8a99;
+  --color-text-invert: #ffffff;
+  --color-text-invert-muted: rgba(255, 255, 255, 0.8);
 
-  /* Premium Gold & Accents — refined luxury tones */
-  --color-gold: #d4af37;            /* classic luxury gold */
-  --color-gold-deep: #c9a961;       /* refined deep gold */
-  --color-gold-pale: #e8d4a0;       /* subtle pale gold */
-  --color-gold-dim: rgba(212, 175, 55, 0.08);
-  --color-accent: #8b9dc3;          /* sophisticated blue-gray */
-  --color-accent-warm: #a89968;
+  /* Accents — refined white + subtle blue */
+  --color-gold: #ffffff;             /* white is the new gold */
+  --color-gold-deep: #d0d0d0;        /* light gray for depth */
+  --color-gold-pale: #e8e8e8;        /* pale accent */
+  --color-gold-dim: rgba(255, 255, 255, 0.08);
+  --color-accent: #87ceeb;           /* sky blue accent */
+  --color-accent-warm: #b8a890;      /* warm accent */
 
   /* Refined Hairlines with better sophistication */
   --color-hairline: rgba(212, 175, 55, 0.2);

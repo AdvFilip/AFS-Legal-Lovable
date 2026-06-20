@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Layout,
@@ -45,67 +46,103 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const sections = [
+    { label: "Thought Leadership", id: "leadership" },
+    { label: "Practice Areas", id: "practice" },
+    { label: "About", id: "about" },
+  ];
+  const [activeSection, setActiveSection] = useState(0);
+
   return (
     <Layout>
-      {/* HERO */}
-      <section className="relative min-h-[92dvh] flex flex-col justify-center px-6 md:px-12 lg:px-20 overflow-hidden bg-[color:var(--color-paper)] monogram-bg blueprint-grid">
-        <span aria-hidden className="monogram-bg-mark">AFS</span>
-        <div
-          aria-hidden
-          className="absolute -right-32 top-1/4 w-[520px] h-[520px] opacity-[0.08] pointer-events-none"
-          style={{
-            backgroundImage: `url(${logo.url})`,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            filter: "brightness(1.1) sepia(0.4) saturate(1.5)",
-          }}
-        />
-
-        <div className="relative mx-auto max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-center">
+      {/* PREMIUM HERO — SPLIT SCREEN (Khaitan & Co inspired) */}
+      <section className="relative min-h-screen flex items-stretch overflow-hidden">
+        {/* LEFT: Content on Deep Navy */}
+        <div className="flex-1 bg-[color:var(--color-ink-deep)] flex flex-col justify-center px-8 md:px-12 lg:px-16 py-20 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-9"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="flex items-center gap-4 mb-12">
-              <div className="h-px w-12 bg-[color:var(--color-gold-deep)]" />
-              <span className="eyebrow text-[0.55rem]">{FIRM.city}</span>
-            </div>
-
-            <h1 className="font-serif font-bold text-[2rem] sm:text-[3rem] lg:text-[4rem] text-[color:var(--color-text-strong)] leading-tight tracking-tight">
-              Strategic Legal Counsel.
-              <br />
-              Trusted Representation.
-              <br />
-              <em className="italic font-serif font-bold text-[color:var(--color-gold-deep)]">
-                Practical Solutions.
-              </em>
+            <span className="eyebrow text-[0.6rem] text-[color:var(--color-accent)]">
+              Thought Leadership
+            </span>
+            <h1 className="font-serif font-bold text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] text-white leading-[1.1] tracking-tight mt-6 max-w-lg">
+              Strategic Legal Counsel for India's Business.
             </h1>
-
-            <p className="mt-14 max-w-xl text-[0.9rem] text-[color:var(--color-text-muted)] leading-[2]">
-              AFS Legal provides litigation, dispute resolution and advisory
-              services for individuals, businesses and institutions across a
-              broad range of legal disciplines.
+            <p className="mt-10 text-[1rem] leading-[1.8] text-[color:var(--color-text-muted)] max-w-md">
+              We combine century-old legal tradition with pragmatic commercial solutions. Counsel you can trust.
             </p>
-
-            <div className="mt-14 flex flex-wrap items-center gap-5">
-              <GoldButton href="/contact">Book Consultation</GoldButton>
-              <OutlineButton href="/practice-areas">Explore Expertise</OutlineButton>
+            <div className="mt-14 flex flex-col sm:flex-row gap-4">
+              <button className="px-8 py-3 border border-white text-white font-semibold tracking-widest uppercase text-[0.75rem] hover:bg-white hover:text-[color:var(--color-ink-deep)] transition-all duration-300">
+                Explore Expertise →
+              </button>
+              <button className="px-8 py-3 bg-white text-[color:var(--color-ink-deep)] font-semibold tracking-widest uppercase text-[0.75rem] hover:bg-[color:var(--color-gold-pale)] transition-all duration-300">
+                Book Consultation →
+              </button>
             </div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="absolute bottom-8 flex flex-col items-center gap-3"
+          >
+            <span className="eyebrow text-[0.5rem] text-white/50">Scroll</span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="h-8 w-px bg-gradient-to-b from-white to-transparent"
+            />
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
-        >
-          <span className="eyebrow text-[0.5rem]">Scroll</span>
-          <div className="h-10 w-px bg-gradient-to-b from-[color:var(--color-gold-deep)] to-transparent" />
-        </motion.div>
+        {/* RIGHT: Full-screen Premium Image */}
+        <div className="hidden md:flex flex-1 relative overflow-hidden bg-gradient-to-br from-[color:var(--color-paper-warm)] via-[color:var(--color-ink)] to-[color:var(--color-ink-deep)]">
+          {/* Placeholder for dramatic image — use Unsplash: judge gavel, legal documents, office, architecture */}
+          <motion.div
+            initial={{ scale: 1.05, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg, rgba(0,31,63,0.4) 0%, rgba(10,25,41,0.6) 100%), url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=900&fit=crop')",
+            }}
+          />
+
+          {/* Overlay accent lines */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 right-0 w-96 h-96 border border-white/20 rounded-full" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 border border-white/10 rounded-full" />
+          </div>
+        </div>
+
+        {/* RIGHT-SIDE NAVIGATION DOTS */}
+        <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-8">
+          {sections.map((s, i) => (
+            <motion.button
+              key={s.id}
+              onClick={() => {
+                setActiveSection(i);
+                document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="relative group"
+              whileHover={{ scale: 1.3 }}
+            >
+              <div
+                className={`w-3 h-3 rounded-full border transition-all duration-300 ${
+                  activeSection === i ? "bg-white border-white" : "border-white/40 group-hover:border-white"
+                }`}
+              />
+              <span className="absolute right-8 text-white text-[0.7rem] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                {s.label}
+              </span>
+            </motion.button>
+          ))}
+        </div>
       </section>
 
       {/* STATS */}
