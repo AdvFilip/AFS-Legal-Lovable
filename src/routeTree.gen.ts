@@ -18,6 +18,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminAdvocatesRouteImport } from './routes/admin.advocates'
 
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
@@ -64,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAdvocatesRoute = AdminAdvocatesRouteImport.update({
+  id: '/admin/advocates',
+  path: '/admin/advocates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/practice-areas': typeof PracticeAreasRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
+  '/admin/advocates': typeof AdminAdvocatesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/practice-areas': typeof PracticeAreasRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
+  '/admin/advocates': typeof AdminAdvocatesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/practice-areas': typeof PracticeAreasRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
+  '/admin/advocates': typeof AdminAdvocatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/practice-areas'
     | '/privacy'
     | '/team'
+    | '/admin/advocates'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/practice-areas'
     | '/privacy'
     | '/team'
+    | '/admin/advocates'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/practice-areas'
     | '/privacy'
     | '/team'
+    | '/admin/advocates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   PracticeAreasRoute: typeof PracticeAreasRoute
   PrivacyRoute: typeof PrivacyRoute
   TeamRoute: typeof TeamRoute
+  AdminAdvocatesRoute: typeof AdminAdvocatesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/advocates': {
+      id: '/admin/advocates'
+      path: '/admin/advocates'
+      fullPath: '/admin/advocates'
+      preLoaderRoute: typeof AdminAdvocatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,7 +245,18 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeAreasRoute: PracticeAreasRoute,
   PrivacyRoute: PrivacyRoute,
   TeamRoute: TeamRoute,
+  AdminAdvocatesRoute: AdminAdvocatesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
