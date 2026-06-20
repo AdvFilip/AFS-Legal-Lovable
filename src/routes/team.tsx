@@ -2,8 +2,40 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Layout, Section, Eyebrow, SectionHeading, GoldButton } from "@/components/afs";
 import { Reveal } from "@/components/afs/primitives";
-import type { Advocate } from "@/lib/advocates";
-import { sortAdvocates } from "@/lib/advocates";
+import { supabase } from "@/integrations/supabase/client";
+
+type Advocate = {
+  id: string;
+  full_name: string | null;
+  slug: string | null;
+  designation: string | null;
+  location: string | null;
+  enrollment_no: string | null;
+  languages: string[] | null;
+  primary_practice: string | null;
+  secondary_practices: string[] | null;
+  industries: string[] | null;
+  years_practice: number | null;
+  highlights: string[] | null;
+  email: string | null;
+  linkedin_url: string | null;
+  photo_url: string | null;
+  seniority_rank: number | null;
+  joined_on: string | null;
+  status: string | null;
+};
+
+function initialsFrom(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((n) => n[0]!)
+      .join("")
+      .slice(0, 3)
+      .toUpperCase() || "—"
+  );
+}
 
 export const Route = createFileRoute("/team")({
   head: () => ({
