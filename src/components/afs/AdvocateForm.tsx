@@ -116,7 +116,7 @@ export function AdvocateForm({ initial, onSubmit, loading = false }: AdvocateFor
     try {
       // Validate required fields
       if (!formData.full_name.trim()) throw new Error('Full name is required');
-      if (!formData.slug.trim()) throw new Error('Slug is required');
+      if (!formData.slug?.trim()) throw new Error('Slug is required');
       if (!formData.designation) throw new Error('Designation is required');
       if (!formData.primary_practice) throw new Error('Primary practice is required');
       if (!formData.email.trim()) throw new Error('Email is required');
