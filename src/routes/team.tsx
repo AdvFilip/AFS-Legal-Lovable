@@ -124,13 +124,35 @@ function TeamPage() {
   useEffect(() => {
     const fetchAdvocates = async () => {
       try {
-        const response = await fetch("/api/advocates/published");
-        if (!response.ok) throw new Error("Failed to fetch advocates");
-        const data = await response.json();
+        // Query Supabase REST API directly for published advocates
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+          throw new Error("Supabase credentials not configured");
+        }
+
+        const url = new URL(`${supabaseUrl}/rest/v1/advocates`);
+        url.searchParams.set('status', 'eq.published');
+        url.searchParams.set('order', 'seniority_rank.asc,joined_on.asc,full_name.asc');
+
+        const response = await fetch(url.toString(), {
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch advocates");
+        }
+
+        const data: Advocate[] = await response.json();
         setAdvocates(sortAdvocates(data));
       } catch (err) {
+        console.error("Team page fetch error:", err);
         setError(err instanceof Error ? err.message : "Error loading team");
-        // Fallback: use empty array
         setAdvocates([]);
       } finally {
         setLoading(false);
