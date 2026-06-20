@@ -129,14 +129,21 @@ function TeamPage() {
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
         if (!supabaseUrl || !supabaseKey) {
-          throw new Error("Supabase credentials not configured");
+          console.warn("Supabase credentials not configured");
+          setAdvocates([]);
+          setLoading(false);
+          return;
         }
 
-        const url = new URL(`${supabaseUrl}/rest/v1/advocates`);
-        url.searchParams.set('status', 'eq.published');
-        url.searchParams.set('order', 'seniority_rank.asc,joined_on.asc,full_name.asc');
+        // Build URL with proper query string
+        const queryString = new URLSearchParams({
+          status: 'eq.published',
+          order: 'seniority_rank.asc,joined_on.asc,full_name.asc',
+        }).toString();
 
-        const response = await fetch(url.toString(), {
+        const url = `${supabaseUrl}/rest/v1/advocates?${queryString}`;
+
+        const response = await fetch(url, {
           headers: {
             apikey: supabaseKey,
             Authorization: `Bearer ${supabaseKey}`,
@@ -145,14 +152,16 @@ function TeamPage() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch advocates");
+          console.error('Supabase response:', response.status, response.statusText);
+          setAdvocates([]);
+          setLoading(false);
+          return;
         }
 
         const data: Advocate[] = await response.json();
         setAdvocates(sortAdvocates(data));
       } catch (err) {
         console.error("Team page fetch error:", err);
-        setError(err instanceof Error ? err.message : "Error loading team");
         setAdvocates([]);
       } finally {
         setLoading(false);
