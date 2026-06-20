@@ -1,0 +1,390 @@
+╔════════════════════════════════════════════════════════════════════════════════════════╗
+║                     AFS LEGAL REDESIGN DEPLOYMENT FLOWCHART                             ║
+║                    (Global Luxury Brand Standards Edition v1.0)                         ║
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+
+STEP 1: REVIEW & APPROVAL (15 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ☐ Read: PRODUCTION_SUMMARY.md (3 min)
+  ☐ Review: BEFORE_AFTER_COMPARISON.md (5 min)
+  ☐ Show stakeholders the before/after
+  ☐ Get approval to proceed
+  ☐ Notify team about deployment
+
+
+STEP 2: PREPARE FOR DEPLOYMENT (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ☐ Open git repository (AFS Legal_ Lovable folder)
+  ☐ Verify commit: 4de4791 is present
+  ☐ Open Lovable editor in browser
+  ☐ Have CODE_SNIPPETS_FOR_LOVABLE.md open nearby
+  ☐ Have LOVABLE_INTEGRATION_GUIDE.md open for reference
+
+
+STEP 3A: DEPLOY VIA GIT SYNC (Fastest - 2 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ☐ In Lovable settings, connect git repo (if not already done)
+  ☐ Go to Git sync panel
+  ☐ Pull latest changes (master branch)
+  ☐ Lovable auto-detects file changes
+  ☐ Preview appears
+
+  → Jump to STEP 4: VERIFICATION
+
+
+STEP 3B: DEPLOY VIA MANUAL COPY (Flexible - 10 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  File 1: src/styles.css
+  ──────────────────────
+  ☐ Open src/styles.css in editor
+  ☐ Select all code (Ctrl+A)
+  ☐ Copy (Ctrl+C)
+  ☐ Go to Lovable styles.css
+  ☐ Replace entire file with copied code
+  ☐ Save changes
+
+  File 2: src/components/afs/primitives.tsx
+  ──────────────────────────────────────────
+  ☐ Open primitives.tsx in editor
+  ☐ Select all code (Ctrl+A)
+  ☐ Copy (Ctrl+C)
+  ☐ Go to Lovable primitives.tsx
+  ☐ Replace entire file
+  ☐ Save changes
+
+  File 3: src/components/afs/PracticeCard.tsx
+  ────────────────────────────────────────────
+  ☐ Open PracticeCard.tsx in editor
+  ☐ Select all code (Ctrl+A)
+  ☐ Copy (Ctrl+C)
+  ☐ Go to Lovable PracticeCard.tsx
+  ☐ Replace entire file
+  ☐ Save changes
+
+  File 4: src/components/afs/Nav.tsx
+  ───────────────────────────────────
+  ☐ Open Nav.tsx in editor
+  ☐ Copy entire file
+  ☐ Replace in Lovable
+  ☐ Save changes
+
+  File 5: src/routes/index.tsx
+  ────────────────────────────
+  ☐ Open index.tsx in editor
+  ☐ Find h1 element (around line 77)
+  ☐ Copy new hero h1 code from CODE_SNIPPETS_FOR_LOVABLE.md
+  ☐ Replace h1 in Lovable
+  ☐ Save changes
+
+  → Continue to STEP 4: VERIFICATION
+
+
+STEP 4: VISUAL VERIFICATION (10 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Typography Check:
+  ────────────────
+  ☐ Open Lovable preview
+  ☐ Check headings use Playfair Display (elegant, serif)
+  ☐ Check body uses Crimson Text (warm, readable)
+  ☐ Check buttons/nav use Inter (clean, modern)
+  ☐ Font sizes are larger (4rem H1, 3.25rem H2)
+
+  Color Check:
+  ───────────
+  ☐ Gold buttons: #d4af37 (not muted, bright luxury gold)
+  ☐ Black background: #0a0a0a or #1a1a1a (pure black)
+  ☐ Text: #f5f5f5 (bright white, not warm ivory)
+  ☐ Borders: subtle gold (not brass)
+
+  Interaction Check:
+  ─────────────────
+  ☐ Hover over practice cards → cards elevate with shadow
+  ☐ Hover over buttons → gold lighter + glow effect
+  ☐ Hover over practice card lists → items slide right
+  ☐ Hover over nav links → gradient underline appears
+  ☐ Scroll down → nav sticky bar has blur backdrop + border
+
+  Performance Check:
+  ─────────────────
+  ☐ Open DevTools (F12)
+  ☐ Go to Performance tab
+  ☐ Record scroll interaction
+  ☐ Check for jank (should be smooth 60fps)
+  ☐ No red bars = good
+
+
+STEP 5: RESPONSIVE TESTING (10 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Desktop (1920px):
+  ─────────────────
+  ☐ Hero section looks premium and big
+  ☐ Practice cards properly spaced
+  ☐ Navigation at top is visible
+  ☐ All text readable
+  ☐ Hover effects work smoothly
+
+  Tablet (768px):
+  ───────────────
+  ☐ Typography scales nicely
+  ☐ Cards become 2-column layout
+  ☐ Touch targets > 44px
+  ☐ Navigation adapts
+
+  Mobile (375px):
+  ───────────────
+  ☐ Hero text still readable (2rem)
+  ☐ Cards single column
+  ☐ Mobile menu works (hamburger icon)
+  ☐ No horizontal scroll
+  ☐ Buttons/links easily tappable
+
+
+STEP 6: ACCESSIBILITY CHECK (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Contrast:
+  ─────────
+  ☐ Use Lighthouse audit: Ctrl+Shift+I → Lighthouse
+  ☐ Run audit
+  ☐ Check Accessibility score (should be > 90)
+  ☐ Verify contrast ratios (should be 7.1:1 AAA)
+
+  Keyboard Navigation:
+  ────────────────────
+  ☐ Tab through page (no mouse)
+  ☐ Can reach all buttons/links
+  ☐ Focus state visible (gold outline)
+  ☐ Can submit forms with keyboard
+
+  Screen Reader (Optional):
+  ──────────────────────────
+  ☐ Use NVDA (Windows) or VoiceOver (Mac)
+  ☐ Navigate through page
+  ☐ All text readable by screen reader
+  ☐ Headings properly marked
+
+
+STEP 7: LIGHTHOUSE AUDIT (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  In Lovable Preview:
+  ──────────────────
+  ☐ Open DevTools (F12)
+  ☐ Go to Lighthouse tab
+  ☐ Click "Analyze page load"
+  ☐ Wait for report
+
+  Results:
+  ────────
+  ☐ Performance: > 85
+  ☐ Accessibility: > 90
+  ☐ Best Practices: > 85
+  ☐ SEO: > 90
+
+  If scores low:
+  ──────────────
+  ☐ Check for console errors
+  ☐ See LOVABLE_INTEGRATION_GUIDE.md → Troubleshooting
+  ☐ Fix issues before deploying
+
+
+STEP 8: FINAL QA CHECKLIST (10 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Visual Elements:
+  ────────────────
+  ☐ Logo displays correctly
+  ☐ All images load
+  ☐ No broken links
+  ☐ Colors consistent across pages
+  ☐ Typography consistent
+
+  Interactions:
+  ─────────────
+  ☐ Buttons are clickable
+  ☐ Links work
+  ☐ Form submissions work (if any)
+  ☐ Navigation menu works
+  ☐ Mobile menu toggles
+
+  Content:
+  ────────
+  ☐ All text displays correctly
+  ☐ No spelling errors
+  ☐ Headers are bold
+  ☐ Lists are formatted
+  ☐ CTAs are visible
+
+  Performance:
+  ─────────────
+  ☐ Page loads fast (< 3 seconds)
+  ☐ No console errors
+  ☐ Smooth scrolling
+  ☐ Smooth hover effects
+  ☐ Smooth transitions
+
+  Team Review:
+  ────────────
+  ☐ Show design to team
+  ☐ Get verbal approval
+  ☐ Address any concerns
+  ☐ Document feedback
+
+
+STEP 9: PREPARE FOR PRODUCTION (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  In Lovable:
+  ───────────
+  ☐ Make final changes if needed
+  ☐ Preview one more time
+  ☐ Check all pages load
+  ☐ Verify animations work
+
+  Backup:
+  ───────
+  ☐ Export current design (if possible)
+  ☐ Save screenshots for comparison
+  ☐ Document commit hash: 4de4791
+
+
+STEP 10: DEPLOY TO PRODUCTION (2 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  In Lovable:
+  ───────────
+  ☐ Click "Deploy to Production" button
+  ☐ Confirm deployment
+  ☐ Wait for deployment to complete
+  ☐ Get public URL
+
+  Post-Deployment:
+  ────────────────
+  ☐ Visit public URL in browser
+  ☐ Verify everything looks good
+  ☐ Test on mobile device
+  ☐ Share with team
+  ☐ Send to stakeholders
+
+
+STEP 11: POST-DEPLOYMENT MONITORING (Ongoing)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Day 1:
+  ──────
+  ☐ Check for user issues/feedback
+  ☐ Monitor error logs
+  ☐ Verify all pages accessible
+  ☐ Check mobile users
+
+  Week 1:
+  ───────
+  ☐ Gather user feedback
+  ☐ Monitor analytics
+  ☐ Check bounce rate
+  ☐ Document any issues
+
+  Month 1:
+  ────────
+  ☐ Analyze user behavior
+  ☐ Measure engagement
+  ☐ Plan improvements
+  ☐ Consider Phase 2 features
+
+
+TROUBLESHOOTING QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: Fonts not loading
+Solution: Check Google Fonts URL in styles.css line 1
+          Clear browser cache (Ctrl+Shift+Delete)
+          Check network tab in DevTools
+
+Problem: Colors look different
+Solution: Check hex codes match specification
+          → #d4af37 (gold), #0a0a0a (black), #f5f5f5 (text)
+          Verify CSS variables in @theme section
+
+Problem: Hover animations stuttering
+Solution: Check DevTools Performance tab
+          Reduce animation complexity
+          Enable hardware acceleration
+          Use will-change hints
+
+Problem: Layout broken on mobile
+Solution: Check responsive breakpoints (sm:, md:, lg:)
+          Test on actual mobile device
+          Check viewport meta tag
+
+Problem: Accessibility score low
+Solution: Use Lighthouse audit
+          Fix contrast ratio issues
+          Improve focus states
+          Add ARIA labels where needed
+
+
+DOCUMENTATION REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For quick info:        PRODUCTION_SUMMARY.md
+For before/after:      BEFORE_AFTER_COMPARISON.md
+For step-by-step:      LOVABLE_INTEGRATION_GUIDE.md
+For code snippets:     CODE_SNIPPETS_FOR_LOVABLE.md
+For deep dive:         DESIGN_UPGRADE.md
+For overview:          README_REDESIGN.md
+
+
+ESTIMATED TIME BREAKDOWN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Review & Approval:     15 minutes
+Prepare:                5 minutes
+Deploy (Git sync):      2 minutes
+Deploy (Manual):       10 minutes
+Verification:          10 minutes
+Testing:               20 minutes
+QA Checklist:          10 minutes
+Deploy:                 5 minutes
+────────────────────────────────
+TOTAL:                 77-90 minutes (1.5-2 hours)
+
+
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Design looks premium (Apple/Nike level)
+✅ Typography uses new font stack correctly
+✅ Colors match specification
+✅ Hover effects work smoothly
+✅ Responsive on all devices
+✅ Accessibility passes WCAG AAA
+✅ Performance > 90 Lighthouse
+✅ No console errors
+✅ Team approves design
+✅ Users respond positively
+
+
+READY TO DEPLOY!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your AFS Legal website is now positioned at global luxury brand standards.
+
+Commit: 4de4791
+Branch: master
+Status: ✅ Production Ready
+
+Next Step: Start with STEP 1 above and follow the checklist!
+
+Questions? See LOVABLE_INTEGRATION_GUIDE.md → Troubleshooting
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+                         🚀 Happy Deploying! ✨
+
+───────────────────────────────────────────────────────────────────────────────────────
