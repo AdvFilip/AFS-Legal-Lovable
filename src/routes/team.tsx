@@ -27,6 +27,12 @@ export const Route = createFileRoute("/team")({
 });
 
 function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
+  // Defensive defaults — DB rows may omit array/optional columns.
+  const languages = a.languages ?? [];
+  const highlights = a.highlights ?? [];
+  const secondaryPractices = a.secondary_practices ?? [];
+  const primaryPractice = a.primary_practice ?? "";
+
   return (
     <Reveal
       delay={(index % 4) * 0.08}
@@ -60,22 +66,23 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
           {a.full_name}
         </h3>
         <div className="text-[0.78rem] tracking-wide text-[color:var(--color-gold-deep)] mb-6">
-          {a.enrollment_no} • {a.location}
+          {[a.enrollment_no, a.location].filter(Boolean).join(" • ")}
         </div>
         <div className="h-px w-12 bg-[color:var(--color-gold)] mb-6" />
         <p className="text-[0.95rem] leading-[1.95] text-[color:var(--color-text-muted)] max-w-2xl mb-6">
-          {a.years_practice}+ years of experience in {a.primary_practice.toLowerCase()}.
-          {a.languages.length > 0 && ` Speaks ${a.languages.join(", ")}.`}
+          {a.years_practice ? `${a.years_practice}+ years of experience` : "Advocate"}
+          {primaryPractice ? ` in ${primaryPractice.toLowerCase()}.` : "."}
+          {languages.length > 0 && ` Speaks ${languages.join(", ")}.`}
         </p>
 
         {/* Highlights */}
-        {a.highlights.length > 0 && (
+        {highlights.length > 0 && (
           <div className="mb-6">
             <p className="text-xs font-semibold text-[color:var(--color-gold-deep)] mb-3 uppercase tracking-widest">
               Representative Matters
             </p>
             <ul className="space-y-2">
-              {a.highlights.slice(0, 3).map((h, i) => (
+              {highlights.slice(0, 3).map((h, i) => (
                 <li key={i} className="text-[0.85rem] text-[color:var(--color-text-muted)] flex gap-2">
                   <span className="text-[color:var(--color-gold-deep)] min-w-fit">•</span>
                   <span>{h}</span>
@@ -87,10 +94,12 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
 
         {/* Practice Areas */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[color:var(--color-text-muted)] border border-[color:var(--color-hairline-soft)] bg-[color:var(--color-paper-warm)] px-3 py-1.5">
-            {a.primary_practice}
-          </span>
-          {a.secondary_practices.slice(0, 2).map((s) => (
+          {primaryPractice && (
+            <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[color:var(--color-text-muted)] border border-[color:var(--color-hairline-soft)] bg-[color:var(--color-paper-warm)] px-3 py-1.5">
+              {primaryPractice}
+            </span>
+          )}
+          {secondaryPractices.slice(0, 2).map((s) => (
             <span
               key={s}
               className="text-[0.6rem] tracking-[0.2em] uppercase text-[color:var(--color-text-muted)] border border-[color:var(--color-hairline-soft)] bg-[color:var(--color-paper-warm)] px-3 py-1.5"
@@ -124,43 +133,54 @@ function TeamPage() {
   useEffect(() => {
     const fetchAdvocates = async () => {
       try {
-        // Supabase credentials (from environment or hardcoded)
-        const supabaseUrl = 'https://wwdaefgmeiiwuhiuckus.supabase.co';
-        const supabaseKey = 'sb_publishable_UVHTDGH_Ei-IIsTmg8MfDg_EgDUszm5';
+        // Use Lovable Cloud's injected Supabase credentials.
+        // (Lovable populates these at build time and they point at the
+        // correct Cloud project where the advocates data lives.)
+        const supabaseUrl =
+          import.meta.env.VITE_SUPABASE_URL ||
+          import.meta.env.VITE_SUPABASE_PROJECT_URL;
+        const supabaseKey =
+          import.meta.env.VITE_SUPABASE_ANON_KEY ||
+          import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+          import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-        // Build query parameters
-        const params = new URLSearchParams();
-        params.append('status', 'eq.published');
-        params.append('order', 'seniority_rank.asc,joined_on.asc,full_name.asc');
+        if (!supabaseUrl || !supabaseKey) {
+          console.warn("[team] Supabase credentials not found in env");
+          setAdvocates([]);
+          setLoading(false);
+          return;
+        }
 
-        const url = `${supabaseUrl}/rest/v1/advocates?${params.toString()}`;
-
-        console.log('Fetching advocates from:', url);
+        // Only filter by status. We deliberately do NOT sort in the query
+        // (sorting on a missing column returns HTTP 400) — we sort in the
+        // browser instead, which is safe regardless of schema.
+        const url = `${supabaseUrl}/rest/v1/advocates?status=eq.published`;
+        console.log("[team] fetching:", url);
 
         const response = await fetch(url, {
-          method: 'GET',
+          method: "GET",
           headers: {
             apikey: supabaseKey,
             Authorization: `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
-        console.log('Response status:', response.status);
+        console.log("[team] status:", response.status);
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Supabase error:', response.status, errorText);
+          console.error("[team] supabase error:", response.status, errorText);
           setAdvocates([]);
           setLoading(false);
           return;
         }
 
         const data: Advocate[] = await response.json();
-        console.log('Advocates loaded:', data);
+        console.log("[team] advocates loaded:", data.length, data);
         setAdvocates(sortAdvocates(data));
       } catch (err) {
-        console.error("Team page fetch error:", err);
+        console.error("[team] fetch error:", err);
         setAdvocates([]);
       } finally {
         setLoading(false);
