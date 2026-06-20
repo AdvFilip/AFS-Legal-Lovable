@@ -2,8 +2,40 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Layout, Section, Eyebrow, SectionHeading, GoldButton } from "@/components/afs";
 import { Reveal } from "@/components/afs/primitives";
-import type { Advocate } from "@/lib/advocates";
-import { sortAdvocates } from "@/lib/advocates";
+import { supabase } from "@/integrations/supabase/client";
+
+type Advocate = {
+  id: string;
+  full_name: string | null;
+  slug: string | null;
+  designation: string | null;
+  location: string | null;
+  enrollment_no: string | null;
+  languages: string[] | null;
+  primary_practice: string | null;
+  secondary_practices: string[] | null;
+  industries: string[] | null;
+  years_practice: number | null;
+  highlights: string[] | null;
+  email: string | null;
+  linkedin_url: string | null;
+  photo_url: string | null;
+  seniority_rank: number | null;
+  joined_on: string | null;
+  status: string | null;
+};
+
+function initialsFrom(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((n) => n[0]!)
+      .join("")
+      .slice(0, 3)
+      .toUpperCase() || "—"
+  );
+}
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -28,10 +60,15 @@ export const Route = createFileRoute("/team")({
 
 function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
   // Defensive defaults — DB rows may omit array/optional columns.
-  const languages = a.languages ?? [];
-  const highlights = a.highlights ?? [];
-  const secondaryPractices = a.secondary_practices ?? [];
+  const fullName = a.full_name ?? "Advocate";
+  const designation = a.designation ?? "Associate";
+  const languages = Array.isArray(a.languages) ? a.languages.filter(Boolean) : [];
+  const highlights = Array.isArray(a.highlights) ? a.highlights.filter(Boolean) : [];
+  const secondaryPractices = Array.isArray(a.secondary_practices)
+    ? a.secondary_practices.filter(Boolean)
+    : [];
   const primaryPractice = a.primary_practice ?? "";
+  const years = typeof a.years_practice === "number" ? a.years_practice : 0;
 
   return (
     <Reveal
@@ -43,16 +80,13 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
         {a.photo_url ? (
           <img
             src={a.photo_url}
-            alt={a.full_name}
+            alt={fullName}
             className="aspect-[4/5] object-cover border border-[color:var(--color-hairline-soft)] rounded"
           />
         ) : (
           <div className="aspect-[4/5] bg-[color:var(--color-paper-warm)] border border-[color:var(--color-hairline-soft)] flex items-center justify-center overflow-hidden">
             <span className="font-display text-7xl md:text-8xl text-[color:var(--color-gold-deep)]/80 group-hover:text-[color:var(--color-gold-deep)] transition-colors">
-              {a.full_name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+              {initialsFrom(fullName)}
             </span>
             <div className="absolute bottom-4 left-4 right-4 h-px bg-[color:var(--color-gold)]" />
           </div>
@@ -61,16 +95,16 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
 
       {/* Info */}
       <div>
-        <div className="eyebrow text-[0.6rem] mb-4">{a.designation}</div>
+        <div className="eyebrow text-[0.6rem] mb-4">{designation}</div>
         <h3 className="serif-heading text-3xl md:text-4xl text-[color:var(--color-text-strong)] mb-2">
-          {a.full_name}
+          {fullName}
         </h3>
         <div className="text-[0.78rem] tracking-wide text-[color:var(--color-gold-deep)] mb-6">
           {[a.enrollment_no, a.location].filter(Boolean).join(" • ")}
         </div>
         <div className="h-px w-12 bg-[color:var(--color-gold)] mb-6" />
         <p className="text-[0.95rem] leading-[1.95] text-[color:var(--color-text-muted)] max-w-2xl mb-6">
-          {a.years_practice ? `${a.years_practice}+ years of experience` : "Advocate"}
+          {years > 0 ? `${years}+ years of experience` : "Advocate"}
           {primaryPractice ? ` in ${primaryPractice.toLowerCase()}.` : "."}
           {languages.length > 0 && ` Speaks ${languages.join(", ")}.`}
         </p>
@@ -131,63 +165,26 @@ function TeamPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAdvocates = async () => {
-      try {
-        // Use Lovable Cloud's injected Supabase credentials.
-        // (Lovable populates these at build time and they point at the
-        // correct Cloud project where the advocates data lives.)
-        const supabaseUrl =
-          import.meta.env.VITE_SUPABASE_URL ||
-          import.meta.env.VITE_SUPABASE_PROJECT_URL;
-        const supabaseKey =
-          import.meta.env.VITE_SUPABASE_ANON_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+    (async () => {
+      const { data, error: err } = await supabase
+        .from("advocates")
+        .select(
+          "id, full_name, slug, designation, location, enrollment_no, languages, primary_practice, secondary_practices, industries, years_practice, highlights, email, linkedin_url, photo_url, seniority_rank, joined_on, status",
+        )
+        .eq("status", "published")
+        .order("seniority_rank", { ascending: true, nullsFirst: false })
+        .order("joined_on", { ascending: true, nullsFirst: false })
+        .order("full_name", { ascending: true });
 
-        if (!supabaseUrl || !supabaseKey) {
-          console.warn("[team] Supabase credentials not found in env");
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
-
-        // Only filter by status. We deliberately do NOT sort in the query
-        // (sorting on a missing column returns HTTP 400) — we sort in the
-        // browser instead, which is safe regardless of schema.
-        const url = `${supabaseUrl}/rest/v1/advocates?status=eq.published`;
-        console.log("[team] fetching:", url);
-
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("[team] status:", response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("[team] supabase error:", response.status, errorText);
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
-
-        const data: Advocate[] = await response.json();
-        console.log("[team] advocates loaded:", data.length, data);
-        setAdvocates(sortAdvocates(data));
-      } catch (err) {
-        console.error("[team] fetch error:", err);
+      if (err) {
+        console.error("[team] supabase error:", err);
+        setError(err.message);
         setAdvocates([]);
-      } finally {
-        setLoading(false);
+      } else {
+        setAdvocates((data ?? []) as Advocate[]);
       }
-    };
-
-    fetchAdvocates();
+      setLoading(false);
+    })();
   }, []);
 
   return (
