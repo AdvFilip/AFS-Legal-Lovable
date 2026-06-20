@@ -60,10 +60,15 @@ export const Route = createFileRoute("/team")({
 
 function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
   // Defensive defaults — DB rows may omit array/optional columns.
-  const languages = a.languages ?? [];
-  const highlights = a.highlights ?? [];
-  const secondaryPractices = a.secondary_practices ?? [];
+  const fullName = a.full_name ?? "Advocate";
+  const designation = a.designation ?? "Associate";
+  const languages = Array.isArray(a.languages) ? a.languages.filter(Boolean) : [];
+  const highlights = Array.isArray(a.highlights) ? a.highlights.filter(Boolean) : [];
+  const secondaryPractices = Array.isArray(a.secondary_practices)
+    ? a.secondary_practices.filter(Boolean)
+    : [];
   const primaryPractice = a.primary_practice ?? "";
+  const years = typeof a.years_practice === "number" ? a.years_practice : 0;
 
   return (
     <Reveal
@@ -75,16 +80,13 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
         {a.photo_url ? (
           <img
             src={a.photo_url}
-            alt={a.full_name}
+            alt={fullName}
             className="aspect-[4/5] object-cover border border-[color:var(--color-hairline-soft)] rounded"
           />
         ) : (
           <div className="aspect-[4/5] bg-[color:var(--color-paper-warm)] border border-[color:var(--color-hairline-soft)] flex items-center justify-center overflow-hidden">
             <span className="font-display text-7xl md:text-8xl text-[color:var(--color-gold-deep)]/80 group-hover:text-[color:var(--color-gold-deep)] transition-colors">
-              {a.full_name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+              {initialsFrom(fullName)}
             </span>
             <div className="absolute bottom-4 left-4 right-4 h-px bg-[color:var(--color-gold)]" />
           </div>
@@ -93,16 +95,16 @@ function AdvocateCard({ a, index }: { a: Advocate; index: number }) {
 
       {/* Info */}
       <div>
-        <div className="eyebrow text-[0.6rem] mb-4">{a.designation}</div>
+        <div className="eyebrow text-[0.6rem] mb-4">{designation}</div>
         <h3 className="serif-heading text-3xl md:text-4xl text-[color:var(--color-text-strong)] mb-2">
-          {a.full_name}
+          {fullName}
         </h3>
         <div className="text-[0.78rem] tracking-wide text-[color:var(--color-gold-deep)] mb-6">
           {[a.enrollment_no, a.location].filter(Boolean).join(" • ")}
         </div>
         <div className="h-px w-12 bg-[color:var(--color-gold)] mb-6" />
         <p className="text-[0.95rem] leading-[1.95] text-[color:var(--color-text-muted)] max-w-2xl mb-6">
-          {a.years_practice ? `${a.years_practice}+ years of experience` : "Advocate"}
+          {years > 0 ? `${years}+ years of experience` : "Advocate"}
           {primaryPractice ? ` in ${primaryPractice.toLowerCase()}.` : "."}
           {languages.length > 0 && ` Speaks ${languages.join(", ")}.`}
         </p>
