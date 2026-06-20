@@ -165,63 +165,26 @@ function TeamPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAdvocates = async () => {
-      try {
-        // Use Lovable Cloud's injected Supabase credentials.
-        // (Lovable populates these at build time and they point at the
-        // correct Cloud project where the advocates data lives.)
-        const supabaseUrl =
-          import.meta.env.VITE_SUPABASE_URL ||
-          import.meta.env.VITE_SUPABASE_PROJECT_URL;
-        const supabaseKey =
-          import.meta.env.VITE_SUPABASE_ANON_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-          import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+    (async () => {
+      const { data, error: err } = await supabase
+        .from("advocates")
+        .select(
+          "id, full_name, slug, designation, location, enrollment_no, languages, primary_practice, secondary_practices, industries, years_practice, highlights, email, linkedin_url, photo_url, seniority_rank, joined_on, status",
+        )
+        .eq("status", "published")
+        .order("seniority_rank", { ascending: true, nullsFirst: false })
+        .order("joined_on", { ascending: true, nullsFirst: false })
+        .order("full_name", { ascending: true });
 
-        if (!supabaseUrl || !supabaseKey) {
-          console.warn("[team] Supabase credentials not found in env");
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
-
-        // Only filter by status. We deliberately do NOT sort in the query
-        // (sorting on a missing column returns HTTP 400) — we sort in the
-        // browser instead, which is safe regardless of schema.
-        const url = `${supabaseUrl}/rest/v1/advocates?status=eq.published`;
-        console.log("[team] fetching:", url);
-
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("[team] status:", response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("[team] supabase error:", response.status, errorText);
-          setAdvocates([]);
-          setLoading(false);
-          return;
-        }
-
-        const data: Advocate[] = await response.json();
-        console.log("[team] advocates loaded:", data.length, data);
-        setAdvocates(sortAdvocates(data));
-      } catch (err) {
-        console.error("[team] fetch error:", err);
+      if (err) {
+        console.error("[team] supabase error:", err);
+        setError(err.message);
         setAdvocates([]);
-      } finally {
-        setLoading(false);
+      } else {
+        setAdvocates((data ?? []) as Advocate[]);
       }
-    };
-
-    fetchAdvocates();
+      setLoading(false);
+    })();
   }, []);
 
   return (
